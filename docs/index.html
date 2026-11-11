@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>CAMI | Emissions-to-Assets 3D Concept</title>
+<style>
+*{box-sizing:border-box}body{margin:0;background:#04101b;color:#e7fff9;font:14px system-ui,Arial;overflow:hidden}#scene{position:fixed;inset:0}header{position:absolute;top:18px;left:20px;z-index:2;pointer-events:none}h1{margin:0;font-size:25px;letter-spacing:.16em}small{color:#6df5d1;letter-spacing:.18em}.panel{position:absolute;top:20px;right:20px;z-index:2;width:min(310px,calc(100vw - 40px));background:#071d2bdc;border:1px solid #2c7a77;border-radius:16px;padding:18px;backdrop-filter:blur(12px)}.panel h2{font-size:15px;margin:0 0 12px}.metric{display:flex;justify-content:space-between;margin:10px 0;border-bottom:1px solid #24414a;padding-bottom:8px}.metric strong{color:#6df5d1}.controls{position:absolute;bottom:20px;left:20px;right:20px;display:flex;gap:8px;flex-wrap:wrap;z-index:2}button{background:#0d3440;border:1px solid #389d8c;border-radius:9px;color:white;padding:11px 15px;cursor:pointer}button.active{background:#087f69}p{line-height:1.5;color:#bed9d9}.note{position:absolute;bottom:85px;left:20px;max-width:440px;color:#a4c6ca;font-size:12px;z-index:2}@media(max-width:650px){header h1{font-size:18px}.panel{top:85px;right:10px;width:220px;padding:12px}.note{bottom:130px}}
+</style></head><body><div id="scene"></div><header><small>CLIMATE ASSETS MONETIZATION INITIATIVE</small><h1>CAMI <span style="color:#5af4c4">/ DIGITAL TWIN</span></h1></header>
+<aside class="panel"><h2 id="phase">01 / Industrial Emissions</h2><p id="description">Explore a conceptual oil & gas facility and its flare source.</p><div class="metric"><span>Flare source</span><strong id="flareStatus">ACTIVE</strong></div><div class="metric"><span>MRV layer</span><strong id="mrvStatus">OFF</strong></div><div class="metric"><span>Asset pathway</span><strong id="assetStatus">SCENARIO</strong></div><p style="font-size:11px">Illustrative geometry and hypothetical workflow. No measured emissions, verified credits or actual project data.</p></aside>
+<div class="note">Drag to orbit · Scroll/pinch to zoom · Tap a stage to explore the workflow. Procedural 3D preview — not a generated Marble .spz world.</div>
+<div class="controls"><button data-stage="0" class="active">01 · Emissions</button><button data-stage="1">02 · MRV Intelligence</button><button data-stage="2">03 · Recovery</button><button data-stage="3">04 · Carbon Assets</button><button id="reset">Reset view</button></div>
+<script type="module">
+import * as THREE from 'https://esm.sh/three@0.180.0';
+import {OrbitControls} from 'https://esm.sh/three@0.180.0/examples/jsm/controls/OrbitControls.js';
+const scene=new THREE.Scene();scene.background=new THREE.Color('#04101b');scene.fog=new THREE.Fog('#04101b',28,75);
+const camera=new THREE.PerspectiveCamera(55,innerWidth/innerHeight,.1,200);camera.position.set(17,13,20);
+const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setSize(innerWidth,innerHeight);renderer.setPixelRatio(Math.min(devicePixelRatio,2));document.querySelector('#scene').appendChild(renderer.domElement);
+const orbit=new OrbitControls(camera,renderer.domElement);orbit.target.set(0,2,0);orbit.enableDamping=true;orbit.maxPolarAngle=Math.PI/2.08;orbit.minDistance=8;orbit.maxDistance=48;
+scene.add(new THREE.HemisphereLight(0x8fd4ef,0x09222b,2));const sun=new THREE.DirectionalLight(0xffffff,2.2);sun.position.set(8,18,6);scene.add(sun);
+const mat=(c,metalness=.3)=>new THREE.MeshStandardMaterial({color:c,metalness,roughness:.45});
+const teal=mat(0x0c897f),steel=mat(0x718a9b,.75),dark=mat(0x1a3947),ground=mat(0x102d36),gold=mat(0xf7a842);
+function cube(w,h,d,x,y,z,m){let a=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),m);a.position.set(x,y,z);scene.add(a);return a}
+function cylinder(r1,r2,h,x,y,z,m){let a=new THREE.Mesh(new THREE.CylinderGeometry(r1,r2,h,24),m);a.position.set(x,y,z);scene.add(a);return a}
+cube(26,.3,19,0,-.2,0,ground);const grid=new THREE.GridHelper(26,26,0x1c6769,0x19434b);grid.position.y=-.02;scene.add(grid);
+cube(8,2.4,4,-4,1.2,-2,dark);cube(7,.2,4,-4,2.5,-2,steel);
+for(let i=0;i<4;i++){cylinder(.9,.9,4.2,2+i*2.2,2.1,-3,steel);cylinder(1,1,.16,2+i*2.2,4.2,-3,teal)}
+for(let i=0;i<3;i++){cube(3,.8,1.4,-7+i*3,.5,4,steel);cube(1,.3,2,-7+i*3,1.1,4,teal)}
+const flare=cylinder(.23,.35,9,9,4.5,4,steel);cylinder(.55,.55,.3,9,9.1,4,dark);
+const flame=new THREE.Mesh(new THREE.ConeGeometry(.75,2.8,16),new THREE.MeshBasicMaterial({color:0xff922e,transparent:true,opacity:.9}));flame.position.set(9,10.7,4);scene.add(flame);
+const halo=new THREE.PointLight(0xff6d22,7,13);halo.position.set(9,10,4);scene.add(halo);
+const markers=[];for(let i=0;i<8;i++){const a=new THREE.Mesh(new THREE.SphereGeometry(.17,12,12),new THREE.MeshBasicMaterial({color:0x5af4c4}));a.position.set(-7+i*2,4.8+Math.sin(i)*.6,-2);scene.add(a);markers.push(a)}
+const beams=[];for(let i=0;i<5;i++){const a=new THREE.Mesh(new THREE.CylinderGeometry(.035,.035,5,8),new THREE.MeshBasicMaterial({color:0x43eac8,transparent:true,opacity:.55}));a.position.set(-7+i*3,2.5,2);scene.add(a);beams.push(a)}
+const stages=[['01 / Industrial Emissions','Explore the flare and industrial infrastructure.','ACTIVE','OFF','SCENARIO'],['02 / MRV Intelligence','Conceptual satellite and sensor-based monitoring overlays.','MONITORED','ON','ASSESSMENT'],['03 / Gas Recovery','Illustrative reduction pathway with flare activity reduced.','REDUCED','ON','MODELED'],['04 / Carbon Assets','Potential finance and carbon-asset workflow, subject to verification.','REDUCED','ON','UNVERIFIED']];
+let stage=0;function setStage(n){stage=n;const s=stages[n];document.querySelector('#phase').textContent=s[0];document.querySelector('#description').textContent=s[1];document.querySelector('#flareStatus').textContent=s[2];document.querySelector('#mrvStatus').textContent=s[3];document.querySelector('#assetStatus').textContent=s[4];flame.scale.setScalar(n>=2?.3:1);halo.intensity=n>=2?1:7;markers.forEach(a=>a.visible=n>=1);beams.forEach(a=>a.visible=n>=1);document.querySelectorAll('[data-stage]').forEach(b=>b.classList.toggle('active',Number(b.dataset.stage)===n))}
+document.querySelectorAll('[data-stage]').forEach(b=>b.onclick=()=>setStage(Number(b.dataset.stage)));document.querySelector('#reset').onclick=()=>{camera.position.set(17,13,20);orbit.target.set(0,2,0);orbit.update()};setStage(0);
+function loop(t){requestAnimationFrame(loop);flame.rotation.y=t*.001;flame.scale.x=(stage>=2?.3:1)*(.9+.12*Math.sin(t*.008));flame.scale.z=flame.scale.x;markers.forEach((a,i)=>a.position.y=4.8+Math.sin(t*.001+i)*.45);orbit.update();renderer.render(scene,camera)}requestAnimationFrame(loop);
+addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
+</script></body></html>
